@@ -1,38 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCatalogDto } from './dto/create-catalog.dto';
 import { UpdateCatalogDto } from './dto/update-catalog.dto';
-import { Service } from '@prisma/client';
+import { Catalogo } from '@prisma/client';
 import { PrismaService } from 'src/db/prisma.service';
 
 @Injectable()
 export class CatalogService {
   constructor(private prisma: PrismaService) {}
 
-  create(createCatalogDto: CreateCatalogDto): Promise<Service> {
-    return this.prisma.service.create({
-      data: createCatalogDto,
-    });
+  create(createCatalogDto: CreateCatalogDto) {
+    
+    return this.prisma.catalogo.create({
+      data: {
+        ...createCatalogDto,
+        description: createCatalogDto.description ?? '',
+      },
+    }); 
   }
 
-  findAll(): Promise<Service[]> {
-    return this.prisma.service.findMany();
+  findAll(): Promise<Catalogo[]> {
+    return this.prisma.catalogo.findMany();
   }
 
-  findOne(id: number): Promise<Service | null> {
-    return this.prisma.service.findUnique({
+  findOne(id: number): Promise<Catalogo | null> {
+    return this.prisma.catalogo.findUnique({
       where: { id },
     });
   }
 
-  update(id: number, updateServiceDto: UpdateCatalogDto): Promise<Service> {
-    return this.prisma.service.update({
+  update(id: number, updateServiceDto: UpdateCatalogDto): Promise<Catalogo> {
+    return this.prisma.catalogo.update({
       where: { id },
       data: updateServiceDto,
     });
   }
 
-  remove(id: number): Promise<Service> {
-    return this.prisma.service.delete({
+  remove(id: number): Promise<Catalogo> {
+    return this.prisma.catalogo.delete({
       where: { id },
     });
   }

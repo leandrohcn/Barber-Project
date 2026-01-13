@@ -1,9 +1,9 @@
-import { Service as PrismaServiceType } from '@prisma/client';
+import { Catalogo as PrismaServiceType } from '@prisma/client';
 
-export class Service implements PrismaServiceType {
+export class Catalogo implements PrismaServiceType {
   id: number;
   name: string;
-  description: string | null;
+  description: string;
   price: number;
   duration: number;
 }

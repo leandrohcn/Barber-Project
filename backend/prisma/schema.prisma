@@ -13,18 +13,7 @@ model Catalogo {
   price       Float
   description String
   duration    Int
-}
-
-enum Status {
-  PENDENTE
-  CONFIRMADO
-  CANCELADO
-  FINALIZADO
-}
-
-enum Role {
-  ADMIN
-  USER
+  agendamentos Agendamentos[]
 }
 
 model User {
@@ -33,15 +22,16 @@ model User {
   email     String   @unique
   phone     String
   password  String
-  role      Role     @default(USER)
+  role      String     @default("USER")
+  agendamentos Agendamentos[]
 }
 
 model Agendamentos{
-    id          Int      @id @default(autoincrement())
-    date        DateTime
-    userId      Int
-    serviceId   Int
-    user        User     @relation(fields: [userId], references: [id])
-    catalog     Catalogo  @relation(fields: [serviceId], references: [id])
-    status      Status   @default(PENDENTE)
+   id          Int      @id @default(autoincrement())
+   date        DateTime
+   userId      Int
+   catalogoId  Int
+   user        User     @relation(fields: [userId], references: [id])
+   catalogo    Catalogo  @relation(fields: [catalogoId], references: [id])
+   status      String   @default("SOLICITADO")
 }
