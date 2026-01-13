@@ -1,0 +1,6 @@
+export class StatusAgend{
+    'SOLICITADO' = 'SOLICITADO';
+    'CONFIRMADO' = 'CONFIRMADO'
+    'CANCELADO' = 'CANCELADO';
+    'FINALIZADO' = 'FINALIZADO';
+}
