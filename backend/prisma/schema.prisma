@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Catalogo {
+  id          Int     @id @default(autoincrement())
+  name        String
+  price       Float
+  description String
+  duration    Int
+}
+
+enum Status {
+  PENDENTE
+  CONFIRMADO
+  CANCELADO
+  FINALIZADO
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String
+  password  String
+  role      Role     @default(USER)
+}
+
+model Agendamentos{
+    id          Int      @id @default(autoincrement())
+    date        DateTime
+    userId      Int
+    serviceId   Int
+    user        User     @relation(fields: [userId], references: [id])
+    catalog     Catalogo  @relation(fields: [serviceId], references: [id])
+    status      Status   @default(PENDENTE)
+}
