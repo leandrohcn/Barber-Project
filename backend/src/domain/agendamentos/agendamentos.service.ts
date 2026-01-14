@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
-import { UpdateAgendamentoDto } from './dto/update-agendamento.dto';
 import { PrismaService } from 'src/db/prisma.service';
 
 @Injectable()

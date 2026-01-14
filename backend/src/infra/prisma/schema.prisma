@@ -23,15 +23,16 @@ model User {
   phone     String
   password  String
   role      String     @default("USER")
-  agendamentos Agendamentos[]
 }
 
-model Agendamentos{
-   id          Int      @id @default(autoincrement())
-   date        DateTime
-   userId      Int
-   catalogoId  Int
-   user        User     @relation(fields: [userId], references: [id])
-   catalogo    Catalogo  @relation(fields: [catalogoId], references: [id])
-   status      String   @default("SOLICITADO")
+model Agendamentos {
+  id             Int      @id @default(autoincrement())
+  date           DateTime
+  cliente        String
+  phone          String?
+  catalogoId     Int
+  catalogo       Catalogo @relation(fields: [catalogoId], references: [id])
+  customDuration Int?     
+  status         String   @default("SOLICITADO")
+  createdAt      DateTime @default(now())
 }
