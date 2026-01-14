@@ -29,18 +29,23 @@ export class DashboardService {
         let cancelamentos = 0;
         let agendamentos = agendamentosHoje.length;
 
-        agendamentosHoje.forEach((agendamento) => {
+        agendamentosHoje.forEach((appt) => {
+        const preco = Number(appt.catalogo?.price) || 0;
 
-            if (agendamento.status === 'CANCELADO') {
-                cancelamentos++;
-            } else {
-                const servico = agendamento.catalogo as Catalogo;
-                faturamentoEsperado += servico.price;
-                if (agendamento.status === 'CONCLUIDO') {
-                    faturamentoReal += servico.price;
-                }
-          }
-        });
+        // Status em PORTUGUÊS agora:
+        if (appt.status === 'CANCELADO') {
+          cancelamentos++;
+        } 
+        // Se estiver FINALIZADO (Dinheiro no bolso)
+        else if (appt.status === 'FINALIZADO') {
+          faturamentoReal += preco;
+          faturamentoEsperado += preco;
+        } 
+        // Se for SOLICITADO ou CONFIRMADO (Ainda vai acontecer)
+        else {
+          faturamentoEsperado += preco;
+        }
+      });
 
         return {
             faturamentoEsperado,

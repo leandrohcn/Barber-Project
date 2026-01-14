@@ -28,4 +28,16 @@ export class AgendamentosService {
     });
   }
 
+  update(id: number, data: any) {
+    return this.prisma.agendamentos.update({
+      where: { id },
+      data: data,
+    });
+  }
+
+  remove(id: number) {
+    return this.prisma.agendamentos.delete({
+      where: { id },
+    });
+  }
 }
