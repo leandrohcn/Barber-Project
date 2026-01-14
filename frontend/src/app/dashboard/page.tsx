@@ -1,68 +1,85 @@
-'use client'; 
+'use client';
 
 import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
-import { Calendar, DollarSign, Users } from 'lucide-react';
+import { DollarSign, CalendarX, TrendingUp, Users } from 'lucide-react';
 
 export default function DashboardHome() {
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [metrics, setMetrics] = useState({
+    agendamentos: 0,
+    cancelamentos: 0,
+    faturamentoEsperado: 0,
+    faturamentoReal: 0
+  });
 
   useEffect(() => {
-    const userCookie = Cookies.get('barber_user');
-    if (userCookie) {
-      setUser(JSON.parse(userCookie));
-    }
+    // Busca os dados do backend
+    fetch('http://localhost:3001/dashboard/metrica')
+      .then(res => res.json())
+      .then(data => setMetrics(data))
+      .catch(err => console.error(err));
   }, []);
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-slate-800">
-        Olá, {user?.name || 'Barbeiro'}! 👋
-      </h1>
-      <p className="mt-2 text-slate-600">
-        Aqui está o resumo do seu dia.
-      </p>
+      <h1 className="text-3xl font-bold text-slate-800 mb-2">Visão Geral</h1>
+      <p className="text-slate-500 mb-8">Resumo das atividades de hoje.</p>
 
-      {/* Cards de Resumo */}
-      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Card 1 */}
-        <div className="rounded-lg bg-white p-6 shadow-md border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Agendamentos Hoje</p>
-              <p className="text-2xl font-bold text-slate-800">0</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Calendar className="text-blue-600" size={24} />
-            </div>
+      {/* GRID DE CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        {/* Card 1: Agendamentos Totais */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 bg-blue-100 text-blue-600 rounded-full">
+            <Users size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-slate-500 font-medium">Agendamentos</p>
+            <h3 className="text-2xl font-bold text-slate-800">{metrics.agendamentos}</h3>
           </div>
         </div>
 
-        {/* Card 2 */}
-        <div className="rounded-lg bg-white p-6 shadow-md border-l-4 border-green-500">
-           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Faturamento Dia</p>
-              <p className="text-2xl font-bold text-slate-800">R$ 0,00</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <DollarSign className="text-green-600" size={24} />
-            </div>
+        {/* Card 2: Faturamento Esperado */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 bg-green-100 text-green-600 rounded-full">
+            <TrendingUp size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-slate-500 font-medium">Faturamento Previsto</p>
+            <h3 className="text-2xl font-bold text-slate-800">
+              R$ {metrics.faturamentoEsperado.toFixed(2)}
+            </h3>
           </div>
         </div>
 
-        {/* Card 3 */}
-        <div className="rounded-lg bg-white p-6 shadow-md border-l-4 border-purple-500">
-           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Clientes Novos</p>
-              <p className="text-2xl font-bold text-slate-800">0</p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <Users className="text-purple-600" size={24} />
-            </div>
+        {/* Card 3: Faturamento Real (Caixa) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 bg-emerald-100 text-emerald-700 rounded-full">
+            <DollarSign size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-slate-500 font-medium">Em Caixa (Real)</p>
+            <h3 className="text-2xl font-bold text-emerald-700">
+              R$ {metrics.faturamentoReal.toFixed(2)}
+            </h3>
           </div>
         </div>
+
+        {/* Card 4: Cancelamentos */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center gap-4">
+          <div className="p-3 bg-red-100 text-red-600 rounded-full">
+            <CalendarX size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-slate-500 font-medium">Cancelamentos</p>
+            <h3 className="text-2xl font-bold text-red-600">{metrics.cancelamentos}</h3>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Espaço para gráficos ou lista de próximos clientes */}
+      <div className="mt-8 bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-64 flex items-center justify-center text-slate-400">
+        <p>Espaço reservado para Gráfico Semanal (Próximos passos)</p>
       </div>
     </div>
   );
