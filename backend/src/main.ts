@@ -5,7 +5,20 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+  // Validação Global com Configurações Robustas
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,                    // Remove campos não definidos
+      forbidNonWhitelisted: true,         // Rejeita campos extras
+      transform: true,                    // Transforma tipos automaticamente
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      stopAtFirstError: false,            // Retorna todos os erros
+    }),
+  );
+
   app.enableCors();
 
   // Configurar Swagger
