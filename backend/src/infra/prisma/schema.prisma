@@ -4,35 +4,183 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-model Catalogo {
-  id          Int     @id @default(autoincrement())
-  name        String
-  price       Float
-  description String
-  duration    Int
-  agendamentos Agendamentos[]
+model agendamentos {
+  id              String            @id @default(uuid())
+  organizationId  String
+  clienteNome     String
+  clienteEmail    String?
+  clienteTelefone String
+  catalogoId      String
+  funcionarioId   String?
+  date            DateTime
+  duration        Int?
+  status          StatusAgendamento @default(PENDENTE)
+  notas           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  catalogs        catalogs          @relation(fields: [catalogoId], references: [id])
+  funcionarios    funcionarios?     @relation(fields: [funcionarioId], references: [id])
+  organizations   organizations     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  notificacoes    notificacoes[]
+
+  @@index([clienteTelefone])
+  @@index([date])
+  @@index([funcionarioId])
+  @@index([organizationId])
+  @@index([status])
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  phone     String
-  password  String
-  role      String     @default("USER")
+model catalogs {
+  id             String         @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  price          Decimal        @db.Decimal(10, 2)
+  duration       Int
+  image          String?
+  isAtivo        Boolean        @default(true)
+  ordem          Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+  agendamentos   agendamentos[]
+  organizations  organizations  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, name])
+  @@index([isAtivo])
+  @@index([organizationId])
 }
 
-model Agendamentos {
-  id             Int      @id @default(autoincrement())
-  date           DateTime
-  cliente        String
+model funcionarios {
+  id                     String                   @id @default(uuid())
+  organizationId         String
+  name                   String
+  phone                  String?
+  email                  String?
+  dataAdmissao           DateTime                 @default(now())
+  isAtivo                Boolean                  @default(true)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  deletedAt              DateTime?
+  agendamentos           agendamentos[]
+  organizations          organizations            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  horarios_funcionamento horarios_funcionamento[]
+
+  @@unique([organizationId, email])
+  @@index([isAtivo])
+  @@index([organizationId])
+}
+
+model horarios_funcionamento {
+  id             String        @id @default(uuid())
+  organizationId String
+  funcionarioId  String?
+  diaSemana      Int
+  horaInicio     String
+  horaFim        String
+  estaAtivo      Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  funcionarios   funcionarios? @relation(fields: [funcionarioId], references: [id])
+  organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([funcionarioId])
+  @@index([organizationId])
+}
+
+model notificacoes {
+  id             String            @id @default(uuid())
+  organizationId String
+  agendamentoId  String
+  tipo           TipoNotificacao
+  status         StatusNotificacao @default(PENDENTE)
+  destinatario   String
+  mensagem       String
+  dataEnvio      DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  agendamentos   agendamentos      @relation(fields: [agendamentoId], references: [id], onDelete: Cascade)
+  organizations  organizations     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([agendamentoId])
+  @@index([organizationId])
+  @@index([status])
+}
+
+model organizations {
+  id                     String                   @id @default(uuid())
+  slug                   String                   @unique
+  name                   String
+  subdomain              String                   @unique
+  customDomain           String?                  @unique
+  logo                   String?
+  primaryColor           String                   @default("#000000")
+  secondaryColor         String                   @default("#FFFFFF")
+  settings               Json                     @default("{}")
+  maxFuncionarios        Int                      @default(10)
+  maxAgendamentos        Int                      @default(9999)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  deletedAt              DateTime?
+  agendamentos           agendamentos[]
+  catalogs               catalogs[]
+  funcionarios           funcionarios[]
+  horarios_funcionamento horarios_funcionamento[]
+  notificacoes           notificacoes[]
+  users                  users[]
+
+  @@index([customDomain])
+  @@index([subdomain])
+}
+
+model users {
+  id             String        @id @default(uuid())
+  organizationId String
+  email          String        @unique
+  password       String
+  name           String
   phone          String?
-  catalogoId     Int
-  catalogo       Catalogo @relation(fields: [catalogoId], references: [id])
-  customDuration Int?     
-  status         String   @default("SOLICITADO")
-  createdAt      DateTime @default(now())
+  avatar         String?
+  role           Role          @default(STAFF)
+  isActive       Boolean       @default(true)
+  lastLogin      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+  organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([email])
+  @@index([organizationId])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  STAFF
+}
+
+enum StatusAgendamento {
+  PENDENTE
+  CONFIRMADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  CANCELADO
+  NAO_COMPARECEU
+}
+
+enum StatusNotificacao {
+  PENDENTE
+  ENVIADO
+  FALHOU
+  LIDO
+}
+
+enum TipoNotificacao {
+  SMS
+  EMAIL
+  WHATSAPP
 }

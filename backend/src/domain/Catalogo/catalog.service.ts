@@ -1,43 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+} from '@nestjs/common';
 import { CreateCatalogDto } from './dto/create-catalog.dto';
 import { UpdateCatalogDto } from './dto/update-catalog.dto';
-import { Catalogo } from '@prisma/client';
-import { PrismaService } from 'src/db/prisma.service';
+import type { catalogs } from '@prisma/client';
+import type { ICatalogRepository } from './repository/catalog.repository.interface';
+
 
 @Injectable()
 export class CatalogService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject('ICatalogRepository') private catalogRepository: ICatalogRepository
+  ) {}
 
-  create(createCatalogDto: CreateCatalogDto) {
-    
-    return this.prisma.catalogo.create({
-      data: {
-        ...createCatalogDto,
-        description: createCatalogDto.description ?? '',
-      },
-    }); 
+  /**
+   * Criar novo catálogo (serviço)
+   * ✅ Multi-tenant: Cria para organizationId específico
+   */
+  async create(
+    organizationId: string,
+    createCatalogDto: CreateCatalogDto,
+  ): Promise<catalogs> {
+    return this.catalogRepository.create(organizationId, createCatalogDto);
   }
 
-  findAll(): Promise<Catalogo[]> {
-    return this.prisma.catalogo.findMany();
+  /**
+   * Listar catálogos da organização
+   * ✅ Filtra por organizationId
+   */
+  async findAll(organizationId: string): Promise<catalogs[]> {
+    return this.catalogRepository.findAll(organizationId);
   }
 
-  findOne(id: number): Promise<Catalogo | null> {
-    return this.prisma.catalogo.findUnique({
-      where: { id },
-    });
+  /**
+   * Buscar catálogo por ID
+   * ✅ Valida isolamento
+   */
+  async findOne(organizationId: string, id: string): Promise<catalogs> {
+    const catalogo = await this.catalogRepository.findOne(organizationId, id);
+
+    if (!catalogo) {
+      throw new NotFoundException('Catálogo não encontrado');
+    }
+
+    if (catalogo.organizationId !== organizationId) {
+      throw new ForbiddenException(
+        'Você não tem permissão para acessar este catálogo',
+      );
+    }
+
+    return catalogo;
   }
 
-  update(id: number, updateServiceDto: UpdateCatalogDto): Promise<Catalogo> {
-    return this.prisma.catalogo.update({
-      where: { id },
-      data: updateServiceDto,
-    });
+  /**
+   * Atualizar catálogo
+   * ✅ Valida isolamento
+   */
+  async update(
+    organizationId: string,
+    id: string,
+    updateCatalogDto: UpdateCatalogDto,
+  ): Promise<catalogs> {
+    await this.findOne(organizationId, id);
+
+    return this.catalogRepository.update(organizationId, id, updateCatalogDto);
   }
 
-  remove(id: number): Promise<Catalogo> {
-    return this.prisma.catalogo.delete({
-      where: { id },
-    });
+  /**
+   * Deletar catálogo (soft delete)
+   * ✅ Valida isolamento
+   */
+  async remove(organizationId: string, id: string): Promise<catalogs> {
+    await this.findOne(organizationId, id);
+
+    return this.catalogRepository.delete(organizationId, id);
   }
 }

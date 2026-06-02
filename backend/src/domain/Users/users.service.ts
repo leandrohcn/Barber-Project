@@ -1,56 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PrismaService } from 'src/db/prisma.service';
-import { User } from './entities/user.entity';
-import bcrypt from 'bcrypt';
+import type { IUsersRepository } from './repository/users.repository.interface';
+import type { users } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject('IUsersRepository') private usersRepository: IUsersRepository,
+  ) {}
 
-  async create(createUserDto: CreateUserDto){
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
-    const user = await this.prisma.user.create({
-      data: {
-        ...createUserDto,
-        password: hashedPassword,
-        role: createUserDto.role.toString(), 
-      },
-    });
-    return new User(user);
+  async create(organizationId: string, createUserDto: CreateUserDto): Promise<users> {
+    return this.usersRepository.create(organizationId, createUserDto);
   }
 
-  findAll() {
-    return this.prisma.user.findMany()
-    .then(users => users.map(user => new User(user)));
+  async findAll(organizationId: string): Promise<users[]> {
+    return this.usersRepository.findAll(organizationId);
   }
 
-  findOne(id: number) {
-    return this.prisma.user.findUnique({ where: { id } })
-    .then(user => user ? new User(user) : null);
+  async findOne(organizationId: string, id: string): Promise<users> {
+    const user = await this.usersRepository.findOne(organizationId, id);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    return user;
   }
 
-  async findByEmail(email: string) {
-    return this.prisma.user.findUnique({ where: { email } })
+  async findByEmail(email: string): Promise<users | null> {
+    return this.usersRepository.findByEmail(email);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
-      where: { id },
-      data: {
-        ...updateUserDto,
-        role: updateUserDto.role?.toString(),
-      }
-    })
-    .then(user => new User(user));
+  async update(organizationId: string, id: string, updateUserDto: UpdateUserDto): Promise<users> {
+    await this.findOne(organizationId, id);
+    return this.usersRepository.update(organizationId, id, updateUserDto);
   }
 
-  remove(id: number) {
-    return this.prisma.user.delete({
-      where: { id },
-    })
-    .then(user => new User(user));
+  async updatePassword(organizationId: string, id: string, newPassword: string): Promise<users> {
+    await this.findOne(organizationId, id);
+    return this.usersRepository.updatePassword(organizationId, id, newPassword);
+  }
+
+  async deactivate(organizationId: string, id: string): Promise<users> {
+    await this.findOne(organizationId, id);
+    return this.usersRepository.deactivate(organizationId, id);
+  }
+
+  async remove(organizationId: string, id: string): Promise<users> {
+    await this.findOne(organizationId, id);
+    return this.usersRepository.delete(organizationId, id);
   }
 }
