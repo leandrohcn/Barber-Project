@@ -10,6 +10,9 @@ import { DashboardModule } from './domain/dashboard/dashboard.module';
 import { FuncionariosModule } from './domain/Funcionarios/funcionarios.module';
 import { HorariosModule } from './domain/Horarios/horarios.module';
 import { NotificacoesModule } from './domain/Notificacoes/notificacoes.module';
+import { StaffModule } from './domain/staff/staff.module';
+import { AvailabilityModule } from './domain/availability/availability.module';
+import { BookingModule } from './domain/booking/booking.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { NotificacoesModule } from './domain/Notificacoes/notificacoes.module';
     FuncionariosModule,
     HorariosModule,
     NotificacoesModule,
+    StaffModule,
+    AvailabilityModule,
+    BookingModule,
   ],
 })
 export class AppModule {}
