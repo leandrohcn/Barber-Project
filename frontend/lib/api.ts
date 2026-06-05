@@ -75,6 +75,10 @@ class ApiClient {
     return this.client.get('/dashboard');
   }
 
+  async getOwnerDashboard() {
+    return this.client.get('/dashboard/metrica');
+  }
+
   // Agendamentos
   async getAgendamentos(organizationId: string) {
     return this.client.get(`/agendamentos`, {
@@ -102,6 +106,27 @@ class ApiClient {
     return this.client.get(`/users`, {
       params: { organizationId },
     });
+  }
+
+  // Funcionários
+  async getFuncionarios() {
+    return this.client.get('/funcionarios');
+  }
+
+  async createFuncionario(data: any) {
+    return this.client.post('/funcionarios', data);
+  }
+
+  async updateFuncionario(id: string, data: any) {
+    return this.client.put(`/funcionarios/${id}`, data);
+  }
+
+  async deleteFuncionario(id: string) {
+    return this.client.delete(`/funcionarios/${id}`);
+  }
+
+  async deactivateFuncionario(id: string) {
+    return this.client.post(`/funcionarios/${id}/deactivate`);
   }
 }
 

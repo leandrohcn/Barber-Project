@@ -4,16 +4,28 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Scissors, LayoutDashboard, Calendar, Package, Users, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { href: '/dashboard', label: 'Visão Geral', icon: LayoutDashboard },
-  { href: '/agenda', label: 'Agenda', icon: Calendar },
-  { href: '/servicos', label: 'Meus Serviços', icon: Package },
-  { href: '/clientes', label: 'Clientes', icon: Users },
-];
+import { useAuth } from '@/lib/useAuth';
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+
+  // Determinar rotas baseado no role
+  const dashboardHref = user?.role === 'OWNER' ? '/owner/dashboard' : '/staff/dashboard';
+
+  const navItems = [
+    { href: dashboardHref, label: 'Visão Geral', icon: LayoutDashboard },
+    ...(user?.role === 'OWNER'
+      ? [
+          { href: '/owner/funcionarios', label: 'Funcionários', icon: Users },
+          { href: '/owner/servicos', label: 'Serviços', icon: Package },
+          { href: '/owner/agendamentos', label: 'Agendamentos', icon: Calendar },
+        ]
+      : [
+          { href: '/staff/agendamentos', label: 'Meus Agendamentos', icon: Calendar },
+          { href: '/staff/disponibilidade', label: 'Disponibilidade', icon: Package },
+        ]),
+  ];
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 border-r border-slate-800 flex flex-col">

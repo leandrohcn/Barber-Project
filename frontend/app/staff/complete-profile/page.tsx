@@ -20,8 +20,8 @@ export default function CompleteProfilePage() {
       try {
         // Check if profile is already complete by trying to load dashboard
         await api.getStaffDashboard();
-        // If successful, redirect to dashboard
-        router.push('/staff/dashboard');
+        // If successful, redirect to owner dashboard
+        router.push('/owner/dashboard');
       } catch {
         // If fails, profile is incomplete, show the form
         setIsCheckingProfile(false);
@@ -48,8 +48,8 @@ export default function CompleteProfilePage() {
         phone: phone || undefined,
       });
 
-      // Redirecionar para o dashboard
-      router.push('/staff/dashboard');
+      // Redirecionar para o owner dashboard
+      router.push('/owner/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao completar perfil');
     } finally {
