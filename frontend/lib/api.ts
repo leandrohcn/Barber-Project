@@ -101,6 +101,14 @@ class ApiClient {
     return this.client.post('/catalogs', data);
   }
 
+  async updateCatalog(id: string, data: any) {
+    return this.client.put(`/catalogs/${id}`, data);
+  }
+
+  async deleteCatalog(id: string) {
+    return this.client.delete(`/catalogs/${id}`);
+  }
+
   // Users/Clientes
   async getUsers(organizationId: string) {
     return this.client.get(`/users`, {
