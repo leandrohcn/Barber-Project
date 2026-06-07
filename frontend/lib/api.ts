@@ -48,13 +48,29 @@ class ApiClient {
   async login(email: string, password: string) {
     const response = await this.client.post('/auth/login', { email, password });
     if (response.data.access_token) {
-      localStorage.setItem('token', response.data.access_token);
+      const token = response.data.access_token;
+      localStorage.setItem('token', token);
+      // Armazenar também em cookie para middleware acessar
+      if (typeof document !== 'undefined') {
+        document.cookie = `token=${token}; path=/; max-age=86400`; // 24 horas
+      }
     }
     return response.data;
   }
 
   async register(data: { organizationName: string; email: string; password: string; name: string }) {
     return this.client.post('/auth/register', data);
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    // Remover cookie
+    if (typeof document !== 'undefined') {
+      document.cookie = 'token=; path=/; max-age=0';
+    }
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   }
 
   // Staff
