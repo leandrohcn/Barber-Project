@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
 
   // Rotas públicas (sem necessidade de autenticação)
-  const publicRoutes = ['/login', '/register', '/'];
+  const publicRoutes = ['/login', '/register', '/register-invite', '/'];
   const isPublicRoute = publicRoutes.includes(pathname);
 
   // Se não tem token

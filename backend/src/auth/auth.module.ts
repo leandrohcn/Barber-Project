@@ -18,11 +18,13 @@ import { GetOrganizationId } from 'src/common/decorators/organization.decorator'
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard, JwtStrategy } from 'src/common';
+import { InvitesModule } from 'src/domain/invites/invites.module';
 
 @Module({
   imports: [
     PrismaModule,
     ConfigModule,
+    InvitesModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

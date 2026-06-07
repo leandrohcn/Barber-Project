@@ -28,4 +28,14 @@ export class AuthController {
     async register(@Body() registerDto: RegisterDto) {
         return this.authService.register(registerDto);
     }
+
+    @ApiOperation({ summary: 'Registrar staff com convite' })
+    @ApiBody({ type: Object })
+    @ApiResponse({ status: 201, description: 'Staff criado com sucesso' })
+    @ApiResponse({ status: 400, description: 'Convite inválido ou expirado' })
+    @HttpCode(HttpStatus.CREATED)
+    @Post('register-with-invite')
+    async registerWithInvite(@Body() body: { inviteToken: string; password: string; name: string }) {
+        return this.authService.registerWithInvite(body);
+    }
 }

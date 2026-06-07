@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Scissors, LayoutDashboard, Calendar, Package, Users, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Scissors, LayoutDashboard, Calendar, Package, Users, LogOut, Settings, ChevronDown, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/useAuth';
 import { api } from '@/lib/api';
@@ -24,6 +24,7 @@ export function Sidebar() {
     ...(user?.role === 'OWNER'
       ? [
           { href: '/owner/funcionarios', label: 'Funcionários', icon: Users },
+          { href: '/owner/convites', label: 'Convites', icon: Mail },
           { href: '/owner/servicos', label: 'Serviços', icon: Package },
           { href: '/owner/agendamentos', label: 'Agendamentos', icon: Calendar },
         ]

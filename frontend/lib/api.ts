@@ -62,6 +62,18 @@ class ApiClient {
     return this.client.post('/auth/register', data);
   }
 
+  async registerWithInvite(data: { inviteToken: string; password: string; name: string; phone?: string }) {
+    const response = await this.client.post('/auth/register-with-invite', data);
+    if (response.data.access_token) {
+      const token = response.data.access_token;
+      localStorage.setItem('token', token);
+      if (typeof document !== 'undefined') {
+        document.cookie = `token=${token}; path=/; max-age=86400`;
+      }
+    }
+    return response.data;
+  }
+
   logout() {
     localStorage.removeItem('token');
     // Remover cookie
@@ -151,6 +163,15 @@ class ApiClient {
 
   async deactivateFuncionario(id: string) {
     return this.client.post(`/funcionarios/${id}/deactivate`);
+  }
+
+  // Invites
+  async generateInvite(email: string) {
+    return this.client.post('/invites/generate', { email });
+  }
+
+  async validateInvite(token: string) {
+    return this.client.get(`/invites/validate/${token}`);
   }
 }
 

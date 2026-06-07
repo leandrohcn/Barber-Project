@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/db/prisma.service';
 import type { IAuthRepository } from './repository/auth.repository.interface';
 import { AuthMapper } from './auth.mapper';
+import { InvitesService } from 'src/domain/invites/invites.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class AuthService {
     private authMapper: AuthMapper,
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private invitesService: InvitesService,
   ) {}
 
   /**
@@ -68,6 +70,59 @@ export class AuthService {
       password: hashedPassword,
       name: data.name,
     } as any);
+
+    const jwtPayload = this.authMapper.toJwtPayload(user);
+    const accessToken = await this.jwtService.sign(jwtPayload);
+
+    return this.authMapper.toAuthResponse(user, accessToken);
+  }
+
+  /**
+   * Registrar staff com convite
+   */
+  async registerWithInvite(data: {
+    inviteToken: string;
+    password: string;
+    name: string;
+    phone?: string;
+  }) {
+    // Validar o convite
+    const invite = await this.invitesService.validateInvite(data.inviteToken);
+
+    // Verificar se o email já existe
+    const existingUser = await this.authRepository.findUserByEmail(invite.email);
+    if (existingUser) {
+      throw new BadRequestException('Email já está cadastrado');
+    }
+
+    // Hash da senha
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    // Criar usuário com role STAFF
+    const user = await this.prisma.users.create({
+      data: {
+        organizationId: invite.organizationId,
+        email: invite.email,
+        password: hashedPassword,
+        name: data.name,
+        role: 'STAFF',
+        isActive: true,
+      },
+    });
+
+    // Criar funcionário automaticamente
+    await this.prisma.funcionarios.create({
+      data: {
+        organizationId: invite.organizationId,
+        name: data.name,
+        email: invite.email,
+        phone: data.phone,
+        isAtivo: true,
+      },
+    });
+
+    // Marcar convite como usado
+    await this.invitesService.markAsUsed(data.inviteToken);
 
     const jwtPayload = this.authMapper.toJwtPayload(user);
     const accessToken = await this.jwtService.sign(jwtPayload);

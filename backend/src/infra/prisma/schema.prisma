@@ -131,6 +131,7 @@ model organizations {
   horarios_funcionamento horarios_funcionamento[]
   notificacoes           notificacoes[]
   users                  users[]
+  invites                invites[]
 
   @@index([customDomain])
   @@index([subdomain])
@@ -155,6 +156,24 @@ model users {
   @@unique([organizationId, email])
   @@index([email])
   @@index([organizationId])
+}
+
+model invites {
+  id             String        @id @default(uuid())
+  organizationId String
+  email          String
+  token          String        @unique
+  expiresAt      DateTime
+  isUsed         Boolean       @default(false)
+  usedAt         DateTime?
+  createdAt      DateTime      @default(now())
+  organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, email])
+  @@index([token])
+  @@index([organizationId])
+  @@index([email])
+  @@index([expiresAt])
 }
 
 enum Role {
