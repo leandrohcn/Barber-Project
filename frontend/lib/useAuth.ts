@@ -36,6 +36,7 @@ export function useAuth() {
 
     if (token) {
       const decoded = decodeJwt(token);
+      console.log('JWT decoded:', decoded);
       setUser(decoded);
     }
     setLoading(false);

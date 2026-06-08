@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, Min, Max, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, Min, Max, Matches, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateHorarioDto {
   @IsString()
@@ -21,4 +21,8 @@ export class CreateHorarioDto {
     message: 'horaFim must be in HH:mm format',
   })
   horaFim: string;
+
+  @IsBoolean()
+  @IsOptional()
+  estaAtivo?: boolean;
 }

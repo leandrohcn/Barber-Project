@@ -173,6 +173,47 @@ class ApiClient {
   async validateInvite(token: string) {
     return this.client.get(`/invites/validate/${token}`);
   }
+
+  // Organizations
+  async getOrganization(organizationId: string) {
+    return this.client.get(`/organizations/${organizationId}`);
+  }
+
+  async updateOrganization(organizationId: string, data: any) {
+    return this.client.put(`/organizations/${organizationId}`, data);
+  }
+
+  // Horários
+  async getHorarios() {
+    return this.client.get('/horarios');
+  }
+
+  async getMeAsStaff() {
+    return this.client.get('/horarios/me/staff');
+  }
+
+  async getHorariosByFuncionario(funcionarioId: string) {
+    return this.client.get(`/horarios/funcionario/${funcionarioId}`);
+  }
+
+  async createHorario(data: any) {
+    return this.client.post('/horarios', data);
+  }
+
+  async upsertHorariosBatch(funcionarioId: string, horarios: any[]) {
+    return this.client.post('/horarios/upsert/batch', {
+      funcionarioId,
+      horarios,
+    });
+  }
+
+  async updateHorario(id: string, data: any) {
+    return this.client.put(`/horarios/${id}`, data);
+  }
+
+  async deleteHorario(id: string) {
+    return this.client.delete(`/horarios/${id}`);
+  }
 }
 
 export const api = new ApiClient();

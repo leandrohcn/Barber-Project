@@ -60,6 +60,8 @@ export class AuthService {
       },
     });
 
+    console.log('Organização criada:', organization.id, organization.name);
+
     // Hash da senha
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
@@ -71,7 +73,10 @@ export class AuthService {
       name: data.name,
     } as any);
 
+    console.log('Usuário criado:', user.id, 'organizationId:', user.organizationId);
+
     const jwtPayload = this.authMapper.toJwtPayload(user);
+    console.log('JWT Payload:', jwtPayload);
     const accessToken = await this.jwtService.sign(jwtPayload);
 
     return this.authMapper.toAuthResponse(user, accessToken);

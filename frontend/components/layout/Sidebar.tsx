@@ -3,18 +3,30 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Scissors, LayoutDashboard, Calendar, Package, Users, LogOut, Settings, ChevronDown, Mail } from 'lucide-react';
+import { Scissors, Sparkles, Crown, Star, Heart, LayoutDashboard, Calendar, Package, Users, LogOut, Settings, ChevronDown, Mail, Sliders } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/useAuth';
+import { useOrganization } from '@/lib/OrganizationContext';
 import { api } from '@/lib/api';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+
+const ICON_MAP = {
+  scissors: Scissors,
+  sparkles: Sparkles,
+  crown: Crown,
+  star: Star,
+  heart: Heart,
+};
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
+  const { organization } = useOrganization();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const LogoIcon = ICON_MAP[(organization?.logo as keyof typeof ICON_MAP) || 'scissors'] || Scissors;
 
   // Determinar rotas baseado no role
   const dashboardHref = user?.role === 'OWNER' ? '/owner/dashboard' : '/staff/dashboard';
@@ -43,11 +55,11 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-800">
-        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-          <Scissors className="w-5 h-5 text-white" />
+        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <LogoIcon className="w-5 h-5 text-white" />
         </div>
-        <div>
-          <h1 className="text-white font-bold">Agenda</h1>
+        <div className="min-w-0">
+          <h1 className="text-white font-bold truncate">{organization?.name || 'Carregando...'}</h1>
           <p className="text-slate-400 text-xs">Sistema de Agendamentos</p>
         </div>
       </div>
@@ -100,8 +112,17 @@ export function Sidebar() {
               className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors text-sm"
             >
               <Settings className="w-4 h-4" />
-              <span>Configurações</span>
+              <span>Minha Conta</span>
             </Link>
+            {user?.role === 'OWNER' && (
+              <Link
+                href="/owner/configuracoes"
+                className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors text-sm"
+              >
+                <Sliders className="w-4 h-4" />
+                <span>Org. Configurações</span>
+              </Link>
+            )}
             <button
               onClick={() => {
                 setShowUserMenu(false);

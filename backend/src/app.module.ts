@@ -13,6 +13,7 @@ import { NotificacoesModule } from './domain/Notificacoes/notificacoes.module';
 import { StaffModule } from './domain/staff/staff.module';
 import { AvailabilityModule } from './domain/availability/availability.module';
 import { BookingModule } from './domain/booking/booking.module';
+import { OrganizationsModule } from './domain/organizations/organizations.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { BookingModule } from './domain/booking/booking.module';
     StaffModule,
     AvailabilityModule,
     BookingModule,
+    OrganizationsModule,
   ],
 })
 export class AppModule {}

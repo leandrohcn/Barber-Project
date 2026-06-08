@@ -60,10 +60,16 @@ export class OrganizationsService {
   /**
    * Buscar organização por ID
    */
-  async findById(id: string): Promise<organizations | null> {
-    return this.prisma.organizations.findUnique({
+  async findById(id: string): Promise<organizations> {
+    const org = await this.prisma.organizations.findUnique({
       where: { id },
     });
+
+    if (!org || org.deletedAt) {
+      throw new NotFoundException(`Organização ${id} não encontrada`);
+    }
+
+    return org;
   }
 
   /**
@@ -91,11 +97,8 @@ export class OrganizationsService {
     id: string,
     dto: UpdateOrganizationDto,
   ): Promise<organizations> {
+    // findById vai lançar NotFoundException se não encontrar
     const org = await this.findById(id);
-
-    if (!org) {
-      throw new NotFoundException(`Organização ${id} não encontrada`);
-    }
 
     // Se mudou subdomain, validar unicidade
     if (dto.subdomain && dto.subdomain !== org.subdomain) {

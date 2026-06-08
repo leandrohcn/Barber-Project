@@ -17,7 +17,14 @@ export class OrganizationGuard implements CanActivate {
     }
 
     const user = request.user as any;
-    const organizationId = request.params.organizationId || request.body?.organizationId;
+    const organizationId = request.params.organizationId || request.params.id || request.body?.organizationId;
+
+    console.log('[OrganizationGuard]', {
+      userOrgId: user.organizationId,
+      paramOrgId: organizationId,
+      params: request.params,
+      isValid: !organizationId || user.organizationId === organizationId,
+    });
 
     // Se há organizationId na rota/body, validar se é do usuário
     if (organizationId && user.organizationId !== organizationId) {
